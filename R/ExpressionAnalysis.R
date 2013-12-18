@@ -20,8 +20,11 @@ numericListOverlap<- function(sample1, sample2, stepsize){
   n<- length(sample1)
   overlap<- function(a,b) {
     count<-as.integer(sum(as.numeric(sample1[1:a] %in% sample2[1:b])))
-    log.pval<- -phyper(q=count-1, m=a, n=n-a, k=b, lower.tail=FALSE, log.p=TRUE)
-    return(c(counts=count, log.pval=log.pval))    
+    ## Single sided case:
+    log.pval<- -phyper(q=count-1, m=a, n=n-a+1, k=b, lower.tail=FALSE, log.p=TRUE)
+    ## Two sided case needs fixing!
+    ## log.pval<- -phyper(q=floor(abs(b*a/n-count+1)), m=a, n=n-a+1, k=b, lower.tail=FALSE, log.p=TRUE)    
+    return(c(counts=count, log.pval=as.numeric(log.pval)))    
   }
   
   indexes<- expand.grid(i=seq(1,n,by=stepsize), j=seq(1,n,by=stepsize))
