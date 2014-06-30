@@ -18,10 +18,10 @@ License: \tab GPL-2\cr
 See \code{\link{RRHO}} to get started.
 }
 \author{
-Jason Stein and Jonathan Rosenblatt
+Jonathan Rosenblatt and Jason Stein 
 Maintainer:  Jonathan Rosenblatt <john.ros.work@gmail.com>
 }
 \keyword{htest}
 \seealso{
-	\code{\link{RRHO}}
+	\code{\link{RRHO}}, \code{\link{RRHOComparison}}
 }

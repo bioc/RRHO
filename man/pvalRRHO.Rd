@@ -18,7 +18,7 @@ pvalRRHO(RRHO.obj, replications, stepsize=RRHO.obj$stepsize, FUN= max)
   The number of samples to be taken from the distribution of the aggregated test statistic.
 }
 \item{stepsize}{
-  Controls the resolution of the test: how many items between any two overlap tests (i.e., netween any two $i$s and two $j$s.)
+  Controls the resolution of the test: how many items between any two overlap tests (i.e., netween any two \eqn{i}-s and two \eqn{j}-s.)
 }
   \item{FUN}{
   The function aggregating infomation from the whole overlap matrix into one summary statistic. Typically the \eqn{min} pvalue, or \eqn{max} on \eqn{-log(pval)} scale.
@@ -58,7 +58,7 @@ list.length <- 100
 list.names <- paste('Gene',1:list.length, sep='')
 gene.list1<- data.frame(list.names, sample(list.length))
 gene.list2<- data.frame(list.names, sample(list.length))
-RRHO.example <-  RRHO(gene.list1, gene.list2)
+RRHO.example <-  RRHO(gene.list1, gene.list2, alternative='enrichment')
 pval.testing <- pvalRRHO(RRHO.example,50) 
 }
 

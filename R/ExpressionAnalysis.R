@@ -1,7 +1,7 @@
 ## Author: Jonathan Rosenblatt and Jason Stein 
 
 ## Suggest default step size
-defaultftepSize <-function(list1, list2){
+defaultStepSize <-function(list1, list2){
   n1<- dim(list1)[1]
   n2<- dim(list2)[1]
   result <- ceiling(min(sqrt(c(n1,n2))))	
@@ -12,18 +12,32 @@ defaultftepSize <-function(list1, list2){
 ## list.names <- paste('Gene',1:list.length, sep='')
 ## gene.list1<- data.frame(list.names, sample(100))
 ## gene.list2<- data.frame(list.names, sample(100))
-## defaultftepSize(gene.list1, gene.list2)
+## defaultStepSize(gene.list1, gene.list2)
 
 
 ## Compute the overlaps between two *numeric* lists:
-numericListOverlap<- function(sample1, sample2, stepsize){
+numericListOverlap<- function(sample1, sample2, stepsize, alternative){
   n<- length(sample1)
   overlap<- function(a,b) {
     count<-as.integer(sum(as.numeric(sample1[1:a] %in% sample2[1:b])))
-    ## Single sided case:
-    log.pval<- -phyper(q=count-1, m=a, n=n-a+1, k=b, lower.tail=FALSE, log.p=TRUE)
-    ## Two sided case needs fixing!
-    ## log.pval<- -phyper(q=floor(abs(b*a/n-count+1)), m=a, n=n-a+1, k=b, lower.tail=FALSE, log.p=TRUE)    
+    
+    switch(alternative,
+           enrichment={
+             log.pval<- -phyper(q=count-1, m=a, n=n-a+1, k=b, lower.tail=FALSE, log.p=TRUE)         
+           },
+           two.sided={
+             the.mean<- a*b/n
+             if(count<the.mean){
+               lower<- count
+               upper<- 2*the.mean-count
+             } else{
+               lower<- 2*the.mean-count
+               upper<- count
+             }
+             log.pval<- -log(
+               phyper(q=lower, m=a, n=n-a+1, k=b, lower.tail=TRUE) +
+                 phyper(q= upper, m=a, n=n-a+1, k=b, lower.tail=FALSE))                  
+           })
     return(c(counts=count, log.pval=as.numeric(log.pval)))    
   }
   
@@ -37,15 +51,15 @@ numericListOverlap<- function(sample1, sample2, stepsize){
   return(list(counts=matrix.counts, log.pval=matrix.log.pvals))  
 }
 ### Testing:
-## n<- 112
-## sample1<- sample(n)
-## sample2<- sample(n)  
-## .test<- numericListOverlap(sample1, sample2, 10)
-## dim(.test$log.oval)
-## library(lattice)
-## levelplot(.test$counts)
-## levelplot(.test$log.pval)
-## table(is.na(.test$log.pval))
+# n<- 112
+# sample1<- sample(n)
+# sample2<- sample(n)  
+# .test<- RRHO:::numericListOverlap(sample1, sample2, 10)
+# dim(.test$log.oval)
+# library(lattice)
+# levelplot(.test$counts)
+# levelplot(.test$log.pval)
+# table(is.na(.test$log.pval))
 
 
 
@@ -57,8 +71,9 @@ numericListOverlap<- function(sample1, sample2, stepsize){
 ## Rank Rank Hypergeometric Overlap 
 ## based on Plaisier et al., Nucleic Acids Research, 2010
 RRHO <- function(list1, list2, 
-                 stepsize=defaultftepSize(list1, list2), 
+                 stepsize=defaultStepSize(list1, list2), 
                  labels, 
+                 alternative,
                  plots=FALSE, 
                  outputdir=NULL, 
                  BY=FALSE) {
@@ -94,7 +109,7 @@ RRHO <- function(list1, list2,
   ## Number of genes on the array
   N  <- max(nlist1,nlist2);
   
-  .hypermat<- numericListOverlap(list1[,1], list2[,1], stepsize)
+  .hypermat<- numericListOverlap(list1[,1], list2[,1], stepsize, alternative)
   
   ## TODO: Reconstruct matrix from vector:
   
@@ -105,15 +120,12 @@ RRHO <- function(list1, list2,
   if(BY){
     hypermatvec  <- matrix(hypermat,
                            nrow=nrow(hypermat)*ncol(hypermat),ncol=1);
-    hypermat.byvec  <- p.adjust(exp(-hypermatvec),method="BY");
-    hypermat.by  <- matrix(-log(hypermat.byvec),
-                           nrow=nrow(hypermat),ncol=ncol(hypermat));
-    result$hypermat.by <- hypermat.by
+    hypermat.byvec  <- p.adjust(exp(-hypermatvec),method="BY")
+    result$hypermat.by <- matrix(-log(hypermat.byvec),
+                                             nrow=nrow(hypermat),ncol=ncol(hypermat))     
   }
   
   if (plots) {
-    require(VennDiagram);
-    require(grid)
     ## Function to plot color bar
     ## Modified from http://www.colbyimaging.com/wiki/statistics/color-bars
     color.bar <- function(lut, min, max=-min, nticks=11, 
@@ -259,8 +271,10 @@ RRHO <- function(list1, list2,
 
 
 ## TODO: Function for FWER control using permutations
-pvalRRHO <- function(RRHO.obj, replications, 
-                     stepsize=RRHO.obj$stepsize, FUN= max){
+pvalRRHO <- function(RRHO.obj, 
+                     replications, 
+                     stepsize=RRHO.obj$stepsize, 
+                     FUN= max){
   ## RRHO.obj <- RRHO.example
   ## FUN<- max
   ## replications<- 100
@@ -275,8 +289,13 @@ pvalRRHO <- function(RRHO.obj, replications,
   }
   
   n.items <- RRHO.obj$n.items
-  result <- list(FUN=FUN, n.items=n.items, stepsize=stepsize , 
-                 replications= replications, call=match.call())
+  alternative<- RRHO.obj$call$alternative
+  result <- list(FUN=FUN, 
+                 n.items=n.items, 
+                 stepsize=stepsize , 
+                replications= replications, 
+                alternative=alternative,
+                 call=match.call())
   
   list.names <- paste('Gene',1:n.items, sep='')
   FUN.vals<- rep(NA, replications)
@@ -285,7 +304,7 @@ pvalRRHO <- function(RRHO.obj, replications,
     ## Generate rankings and compute overlap
     sample1<- data.frame(list.names, sample(n.items))
     sample2<- data.frame(list.names, sample(n.items))	  
-    .RRHO<- RRHO(sample1, sample2, stepsize=stepsize, plots=FALSE, BY=FALSE)
+    .RRHO<- RRHO(sample1, sample2, stepsize=stepsize, plots=FALSE, BY=FALSE, alternative=alternative)
     .clean.result<- na.omit(.RRHO$hypermat)
     FUN.vals[i]<- FUN(.clean.result)
     
