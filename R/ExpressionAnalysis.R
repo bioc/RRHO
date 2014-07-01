@@ -76,7 +76,8 @@ RRHO <- function(list1, list2,
                  alternative,
                  plots=FALSE, 
                  outputdir=NULL, 
-                 BY=FALSE) {
+                 BY=FALSE,
+                 log10.ind=FALSE) {
   ## list 1 is a data.frame from experiment 1 with two columns, 
   ## column 1 is the Gene Identifier, 
   ## column 2 is the signed ranking value (e.g. signed -log(p-value) 
@@ -95,10 +96,16 @@ RRHO <- function(list1, list2,
     stop('Non-unique gene identifier found in list2');
   if(plots && (missing(outputdir) || missing(labels)))
     stop('When plots=TRUE, outputdir and labels are required.')
+  if(!(alternative=='two.sided' || alternative=='enrichment'))
+    stop('Wrong alternative specified.')
   
-  result <-list(hypermat=NA, hypermat.counts=NA, 
-                n.items=nrow(list1), stepsize=stepsize, 
-                hypermat.by=NA, call=match.call()) 
+  result <-list(hypermat=NA, 
+                hypermat.counts=NA, 
+                n.items=nrow(list1), 
+                stepsize=stepsize, 
+                hypermat.by=NA, 
+                log10.ind=log10.ind,
+                call=match.call()) 
   
   ## Order lists along list2
   list1  <- list1[order(list1[,2],decreasing=TRUE),];
@@ -110,20 +117,29 @@ RRHO <- function(list1, list2,
   N  <- max(nlist1,nlist2);
   
   .hypermat<- numericListOverlap(list1[,1], list2[,1], stepsize, alternative)
+  hypermat<- .hypermat$log.pval
   
-  ## TODO: Reconstruct matrix from vector:
-  
-  result$hypermat <- hypermat<- .hypermat$log.pval
-  result$hypermat.counts <- .hypermat$counts
   
   ## Convert hypermat to a vector and Benjamini Yekutieli FDR correct
   if(BY){
     hypermatvec  <- matrix(hypermat,
                            nrow=nrow(hypermat)*ncol(hypermat),ncol=1);
     hypermat.byvec  <- p.adjust(exp(-hypermatvec),method="BY")
-    result$hypermat.by <- matrix(-log(hypermat.byvec),
+    hypermat.by <- matrix(-log(hypermat.byvec),
                                              nrow=nrow(hypermat),ncol=ncol(hypermat))     
+    
+    if(log10.ind) hypermat.by<- hypermat.by *log10(exp(1))
+    result$hypermat.by<- hypermat.by
   }
+  
+  
+  if(log10.ind) hypermat<- hypermat *log10(exp(1))  
+  result$hypermat <- hypermat
+  result$hypermat.counts <- .hypermat$counts
+  
+  
+  
+  
   
   if (plots) {
     ## Function to plot color bar
@@ -149,8 +165,10 @@ RRHO <- function(list1, list2,
       c("#00007F", "blue", "#007FFF", "cyan", 
         "#7FFF7F", "yellow", "#FF7F00", "red", "#7F0000"));
     layout(matrix(c(rep(1,5),2), 1, 6, byrow = TRUE));
-    image(hypermat,xlab='', ylab='', col=jet.colors(100), 
+    
+    image(hypermat, xlab='', ylab='', col=jet.colors(100), 
           axes=FALSE, main="Rank Rank Hypergeometric Overlap Map");
+    
     mtext(labels[2],2,0.5);
     mtext(labels[1],1,0.5);
     ##mtext(paste("-log(BY P-value) =",max(hypermat.by)),3,0.5,cex=0.5);
@@ -252,20 +270,25 @@ RRHO <- function(list1, list2,
     grid.text("Up Regulated",y=1);
     dev.off();
   }
+  
+    
   return(result);
 }
 ### Testing:
-## list.length <- 100
-## list.names <- paste('Gene',1:list.length, sep='')
-## gene.list1<- data.frame(list.names, sample(list.length))
-## gene.list2<- data.frame(list.names, sample(list.length))
-## RRHO.example <-  RRHO(gene.list1, gene.list2)
-## library(lattice)
-## levelplot(RRHO.example$hypermat)
-## RRHO.example <-  
-##   RRHO(gene.list1, 
-##        gene.list2, 
-##        plots=TRUE, outputdir='/tmp/', labels=c("a","b"))
+# list.length <- 100
+# list.names <- paste('Gene',1:list.length, sep='')
+# gene.list1<- data.frame(list.names, sample(list.length))
+# gene.list2<- data.frame(list.names, sample(list.length))
+# RRHO.example <-  RRHO(gene.list1, gene.list2, alternative = "enrichment")
+# library(lattice)
+# levelplot(RRHO.example$hypermat)
+# RRHO.example <-  RRHO(gene.list1, gene.list2, alternative = "enrichment", BY=TRUE, log10.ind = FALSE)
+# RRHO.example <-  RRHO(gene.list1, gene.list2, alternative = "two.sided", BY=TRUE, log10.ind = TRUE)
+# levelplot(RRHO.example$hypermat.by)
+# RRHO.example <-  
+#   RRHO(gene.list1, 
+#        gene.list2, 
+#        plots=TRUE, outputdir=tempdir(), labels=c("a","b"))
 
 
 
@@ -290,11 +313,13 @@ pvalRRHO <- function(RRHO.obj,
   
   n.items <- RRHO.obj$n.items
   alternative<- RRHO.obj$call$alternative
+  log10.ind<- RRHO.obj$log10.ind
+  
   result <- list(FUN=FUN, 
                  n.items=n.items, 
                  stepsize=stepsize , 
-                replications= replications, 
-                alternative=alternative,
+                 replications= replications, 
+                 alternative=alternative,
                  call=match.call())
   
   list.names <- paste('Gene',1:n.items, sep='')
@@ -304,7 +329,7 @@ pvalRRHO <- function(RRHO.obj,
     ## Generate rankings and compute overlap
     sample1<- data.frame(list.names, sample(n.items))
     sample2<- data.frame(list.names, sample(n.items))	  
-    .RRHO<- RRHO(sample1, sample2, stepsize=stepsize, plots=FALSE, BY=FALSE, alternative=alternative)
+    .RRHO<- RRHO(sample1, sample2, stepsize=stepsize, plots=FALSE, BY=FALSE, alternative=alternative, log10.ind=FALSE)
     .clean.result<- na.omit(.RRHO$hypermat)
     FUN.vals[i]<- FUN(.clean.result)
     
@@ -316,7 +341,9 @@ pvalRRHO <- function(RRHO.obj,
   result$FUN.ecdf<- FUN.ecdf	  
   
   .clean.data<- na.omit(RRHO.obj$hypermat)
-  FUN.observed<- FUN(.clean.data)
+  
+  FUN.observed<- FUN(.clean.data )
+  if(log10.ind) FUN.observed<- FUN.observed / log10(exp(1))
   
   result$pval<- 1-FUN.ecdf(FUN.observed)
   
@@ -325,7 +352,4 @@ pvalRRHO <- function(RRHO.obj,
   return(result)
 }
 ### Testing:
-## pval.testing <- pvalRRHO(RRHO.example,200) 
-
-
-
+# pvalRRHO(RRHO.example, replications = 1000)

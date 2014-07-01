@@ -30,10 +30,11 @@
 Consider the problem of comparing the degree and significance of overlap between two lists of same length.
 In the following, we will assume that one list consists of differential expression statistics between two conditions for each gene. A second list consists of differential expression statistics between two different conditions for the same genes. 
 A possible way of comparison would be to test the hypothesis that the ordering of lists by their differential expression statistics is arbitrary. 
-The test can be performed against a one sided hypothesis (an enrichment hypothesis), or a two sided hypothesis. This is the purpose of this package is based on the work of~\citet{plaisier_rankrank_2010}.
+The test can be performed against a one sided hypothesis (an over-enrichment hypothesis), or a two sided hypothesis (looking for under- or over-enrichment). 
+This is the purpose of this package, based on the work of~\citet{plaisier_rankrank_2010}.
 
 The proposed approach is to count the number of common genes in the first $i \times stepsize$ and $j \times stepsize$ elements of the first and second list respectively, where $stepsize$ is an arbitrary user inputted number. 
-As the count of common elements could be driven by chance, the signi???cance of the observed count is computed assuming the hypothesis of completely random list orderings. 
+As the count of common elements could be driven by chance, the significance of the observed count is computed assuming the hypothesis of completely random list orderings. 
 As this is performed for all $i \times stepsize$ and $j \times stepsize$, correction for multiple comparisons is necessary.
 
 The package offers both FWER control\footnote{ For a general introduction to multiple testing error rates, see~\citep{rosenblatt_practitioners_2013}.} using permutation testing and FDR control using the B-Y procedure~\citep{benjamini_control_2001} as proposed in the original work by~\citet{plaisier_rankrank_2010}.
@@ -87,7 +88,7 @@ library(RRHO)
 
 <<fig=TRUE>>=
 # Examine Nominal (-log) pvalues
-  image(RRHO.example$hypermat)
+  lattice::levelplot(RRHO.example$hypermat)
 # Note: If lattice is available try: 
 # levelplot(RRHO.example$hypermat)
 @
@@ -109,13 +110,13 @@ plot(Vectorize(pval.testing$FUN.ecdf)(xs)~xs,
 # Examine B-Y corrected pvalues 
 # Note: probably nothing will be rejected in this 
 # example as the data is generated from the null.
-  image(RRHO.example$hypermat.by)
+  lattice::levelplot(RRHO.example$hypermat.by)
 @
 
 
 \begin{remark}
 As of version $1.4.0$ a two-sided hypothesis test is now possible.
-The computation of the p-values differ from that described in~\citep{plaisier_rankrank_2010}. 
+The computation of the p-values differ from that described in~\cite{plaisier_rankrank_2010}. 
 The algorithm propsed in~\citep[Section Hypergeometric probability distributions]{plaisier_rankrank_2010}  does not control the type $I$ error as demonstrated in the following simulation:
 <<>>=
 m<- 100 ; n<- 100; k<- 50
@@ -148,7 +149,7 @@ prop.table(table(pvals<alpha))
 
 
 \section{Comparing Three Lists}
-As of version $1.4.0$, a comparison of three lists is possible as described by~\citet{j.l._stein_quantitative_2014}.
+As of version $1.4.0$, a comparison of three lists is possible as described by~\citet{jl_stein_quantitative_2014}.
 This comprison tests whether the difference between lists $1$ and $3$ is different than the differences between $2$ and $3$. Rejecting this hypothesis implies that that the difference between $1$ and $2$ are non arbitrary.
 
 <<fig=FALSE>>=
@@ -164,21 +165,21 @@ list3<- data.frame(
   RankingVal=-log(runif(size)))
 rrho.comparison<- RRHOComparison(list1,list2,list3,
                 stepsize=10,
-                labels=c("phNPCs 1 wk PD vs 4 wk PD",
-                         "My Progenitor vs Diff",
-                         "In Vivo Stage 1 vs Stage 4"),
+                labels=c("list1",
+                         "list2",
+                         "list3"),
                 plots=FALSE,
                 outputdir=temp.dir);
 @
 
 <<fig=TRUE>>=
 ## The standard RRHO map between list1 and list 3.
-image(rrho.comparison$hypermat1)  
+lattice::levelplot(rrho.comparison$hypermat1)  
 @
 <<fig=TRUE>>=
 ## The p-value of the difference between 
 # (list1-list3)-(list2-list3).
-image(rrho.comparison$Pdiff)
+lattice::levelplot(rrho.comparison$Pdiff)
 @
 
 

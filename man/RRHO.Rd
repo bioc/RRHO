@@ -13,7 +13,8 @@
   alternative,
   plots = FALSE, 
   outputdir = NULL, 
-  BY = FALSE)
+  BY = FALSE,
+  log10.ind=FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -43,7 +44,12 @@
   \item{BY}{
 	  Logical. Should Benjamini-Yekutieli FDR corrected pvalues be computed?
 }
+\item{log10.ind}{
+    Logical. Should pvalues be reported and plotted in -log10 scale and not -log scale?
 }
+}
+
+
 \details{
 	Following the method in the reference, the function computes the number of overlapping elements in the first \eqn{i*stepsize} and \eqn{j*stepsize} elements of each list, and return the observed significance of this overlap using a hypergeometric test (see \code{\link{fisher.test}}).
 	The output is returned as a list of matrices including: the overlap in the first \eqn{i*stepsize,j*stepsize} elements and the significance of this overlap. Optional outputs include plots of these matrices in .jpg format.}
@@ -54,11 +60,13 @@
 \item{hypermat.by}{An optional output of the B-Y corrected p-values of \code{hypermat} }
 }
 
-\section{Warning }{
-  Unlike the reference, we output the pvalues in natural log scale and not in log 10 scale. 
-  Moreover, the p-values of the two-sided hypothesis test differ from those in reference [1]. This is because the two-sided p-values suggested in [1], are based on taking either the upper or lower tail of the distribution without appropriately using both tails.  This method does not correctly control the type I error rate.  In the implementation here, for a two-sided test we sum the probabilities from both tails of the hypergeometric distribution.
+\section{Notes}{
+  By default, pvalues are reported in (minus) the natural log scale and not in (minus) log 10 scale. 
+  This behaviour is governed by \code{log10.ind}.
+  
+  The p-values of the two-sided hypothesis test differ from those in reference [1]. This is because the two-sided p-values suggested in [1], are based on taking either the upper or lower tail of the distribution without appropriately using both tails.  This method does not correctly control the type I error rate.  In the implementation here, for a two-sided test we sum the probabilities from both tails of the hypergeometric distribution.
   See the package vignette for a small simulation.
-  }
+}
 
 
 
@@ -67,8 +75,7 @@
 
 [2] Benjamini, Y., and D. Yekutieli. 2001. "The Control of the False Discovery Rate in Multiple Testing Under Dependency." ANNALS OF STATISTICS 29 (4): 1165-1188.
 
-
-[3] Stein JL*, de la Torre-Ubieta L*, Tian Y, Parikshak NN, Hernandez IA, Marchetto MC, Baker DK, Lu D, Lowe JK, Wexler EM, Muotri AR, Gage FH, Kosik KS, Geschwind DH. "A quantitative framework to evaluate modeling of cortical development by neural stem cells." Manuscript in press at Neuron.  
+[3] Stein JL(*), de la Torre-Ubieta L(*), Tian Y, Parikshak NN, Hernandez IA, Marchetto MC, Baker DK, Lu D, Lowe JK, Wexler EM, Muotri AR, Gage FH, Kosik KS, Geschwind DH. "A quantitative framework to evaluate modeling of cortical development by neural stem cells." Manuscript in press at Neuron.  
 (*) Authors contributed equally to this work.
 }
 \author{

@@ -45,7 +45,7 @@ Range of (-log) pvalues to be plotted for the BY adjusted pvalues of the differe
 The difference in \{overlap between \code{list1} and \code{list3}\} compared to the \{overlap between \code{list2} and \code{list3}\}.  This is useful for determining if there is a statistically significant difference between two RRHO maps.  In other words, this is useful for determining if the overlap between list1 and list3 is statistically different between the overlap between \code{list2} and \code{list3}.
 
 RRHO Difference maps are produced by calculating for each pixel the normal approximation of difference in log odds ratio and standard error of overlap between the two RRHO maps. 
-This Z score is then converted to a P-value and corrected for multiple comparisons across pixels [2].
+This Z score is then converted to a P-value and corrected for multiple comparisons across pixels [3].
 
 The function will return a RRHO of the significance of overlap between \code{list1} and \code{list3} and \code{list2} and \code{list3}. A third RRHO gives the significance of the difference between these two overlap maps.
 

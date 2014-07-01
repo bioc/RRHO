@@ -1,0 +1,5 @@
+Version 1.5.0:
+() Major documentation cleanup.
+() Added two sided hypotheses to RRHO().
+() Added comparison of three lists using RRHOCOmparison().
+() Added an option for log10 pvalues in RRHO.
