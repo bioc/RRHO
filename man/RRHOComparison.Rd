@@ -5,13 +5,13 @@
 Compares two RRHO maps to a third
 }
 \description{
-Comparing two RRHO maps where one of the lists is shared between the two maps as in \{RRHO map 1: list1 vs list3\} vs \{RRHO map 2: list2 vs list3\}.
+  Comparing two RRHO maps where one of the lists is shared between the two maps as in \{RRHO map 1: list1 vs list3\} vs \{RRHO map 2: list2 vs list3\}.
 }
 \usage{
-RRHOComparison(list1, list2, list3, 
-  stepsize, plots = FALSE, 
-  labels, outputdir = NULL,
-  hypermat.range)
+  RRHOComparison(list1, list2, list3, 
+    stepsize, plots = FALSE, 
+    labels, outputdir = NULL,
+    log10.ind)
 }
 %- maybe also 'usage' for other objects documented here. 
 \arguments{
@@ -36,9 +36,10 @@ Logical. Should comparisons be plotted?
   \item{outputdir}{
 Plot destination directory.
 }
-  \item{hypermat.range}{
-Range of (-log) pvalues to be plotted for the BY adjusted pvalues of the difference in differences.
-  }
+  \item{log10.ind}{
+    Logical. Should pvalues be reported and plotted in -log10 scale and not -log scale?
+}
+
 }
 
 \details{
@@ -49,15 +50,15 @@ This Z score is then converted to a P-value and corrected for multiple compariso
 
 The function will return a RRHO of the significance of overlap between \code{list1} and \code{list3} and \code{list2} and \code{list3}. A third RRHO gives the significance of the difference between these two overlap maps.
 
-Note that all pvalues are outputted in -log scale.
+Note that by default all pvalues are outputted in -log scale. This can be changed with the log10.ind argument.
 }
 
 \value{
 A oject including:
-  \item{hypermat1}{Pvalues of comparing \code{list1} to \code{list3} (-log scale).}
-  \item{hypermat2}{Pvalues of comparing \code{list2} to \code{list3} (-log scale).}
-  \item{Pdiff}{The pvalue of the test for a difference in difference between lists 1-3 and 2-3 (-log scale).}
-  \item{Pdiff.by}{Pvalues, corrected for the search over all of the list using Benjamini-Yekutieli (-log scale).}
+  \item{hypermat1}{Pvalues of comparing \code{list1} to \code{list3}.}
+  \item{hypermat2}{Pvalues of comparing \code{list2} to \code{list3}.}
+  \item{Pdiff}{The pvalue of the test for a difference in difference between lists 1-3 and 2-3.}
+  \item{Pdiff.by}{Pvalues, corrected for the search over all of the list using Benjamini-Yekutieli.}
 }
 \references{
 [1] Plaisier, Seema B., Richard Taschereau, Justin A. Wong, and Thomas G. Graeber. "Rank-rank Hypergeometric Overlap: Identification of Statistically Significant Overlap between Gene-Expression Signatures." Nucleic Acids Research 38, no. 17 (September 1, 2010): e169-e169.
@@ -74,18 +75,18 @@ Jason Stein and Jonathan Rosenblatt
 \code{\link{RRHO}}
 }
 \examples{
-size<- 500
-list1<- data.frame(GeneIdentifier=paste('gen',1:size, sep=''), 
-RankingVal=-log(runif(size)))
-list2<- data.frame(GeneIdentifier=paste('gen',1:size, sep=''), 
-RankingVal=-log(runif(size)))
-list3<- data.frame(GeneIdentifier=paste('gen',1:size, sep=''), 
-RankingVal=-log(runif(size)))
-(temp.dir<- tempdir())
-RRHOComparison(list1,list2,list3,
-                stepsize=10,
-                labels=c("list1","list2","list3"),
-                plots=TRUE,
-                outputdir=temp.dir, 
-                hypermat.range= c(-46,46)*log(10));
+  size<- 500
+  list1<- data.frame(GeneIdentifier=paste('gen',1:size, sep=''), 
+  RankingVal=-log(runif(size)))
+  list2<- data.frame(GeneIdentifier=paste('gen',1:size, sep=''), 
+  RankingVal=-log(runif(size)))
+  list3<- data.frame(GeneIdentifier=paste('gen',1:size, sep=''), 
+  RankingVal=-log(runif(size)))
+  (temp.dir<- tempdir())
+  RRHOComparison(list1,list2,list3,
+                  stepsize=10,
+                  labels=c("list1","list2","list3"),
+                  plots=TRUE,
+                  outputdir=temp.dir,
+                  log10.ind=FALSE)
 }

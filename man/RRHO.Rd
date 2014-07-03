@@ -92,7 +92,13 @@
 	list.names <- paste('Gene',1:list.length, sep='')
 	gene.list1<- data.frame(list.names, sample(100))
 	gene.list2<- data.frame(list.names, sample(100))
+  # Enrichment alternative
 	RRHO.example <-  RRHO(gene.list1, gene.list2, alternative='enrichment')
 	image(RRHO.example$hypermat)
+  
+  # Two sided alternative
+  RRHO.example <-  RRHO(gene.list1, gene.list2, alternative='two.sided')
+	image(RRHO.example$hypermat)
+
 }
 \keyword{htest}

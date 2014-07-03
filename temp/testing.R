@@ -36,6 +36,22 @@ RRHO.example <- RRHO(gene.list1, gene.list2, alternative='enrichment',
 pvalRRHO(RRHO.example,1000) 
 
 
+
+list.length <- 100
+list.names <- paste('Gene',1:list.length, sep='')
+gene.list1<- data.frame(list.names, sample(100))
+gene.list2<- data.frame(list.names, sample(100))
+# Enrichment alternative
+RRHO.example <-  RRHO(gene.list1, gene.list2, alternative='enrichment')
+image(RRHO.example$hypermat)
+
+# Two sided alternative
+RRHO.example <-  RRHO(gene.list1, gene.list2, alternative='two.sided')
+image(RRHO.example$hypermat)
+
+
+
+
 ### Testing website:
 
 data<- read.table('http://systems.crump.ucla.edu/rankrank/demo/rankrank.94aaa8b7716d7f.ranks_true.txt', skip=1)
@@ -57,12 +73,22 @@ list3<- data.frame(GeneIdentifier=paste('gen',1:size, sep=''), RankingVal=-log(r
 
 comparison.test<-RRHOComparison(list1,list2,list3,
                                 stepsize=10, plots=FALSE,
-                                labels=c("phNPCs 1 wk PD vs 4 wk PD",
-                                         "My Progenitor vs Diff",
-                                         "In Vivo Stage 1 vs Stage 4"))
+                                labels=c("list1",
+                                         "list2",
+                                         "list3"))
 
+
+library(lattice)
 levelplot(comparison.test$Pdiff)
+levelplot(comparison.test$Pdiff * log10(exp(1)))
 levelplot(comparison.test$Pdiff.by)
+
+comparison.test<-RRHOComparison(list1,list2,list3,
+                                stepsize=10, plots=FALSE,
+                                labels=c("list1",
+                                         "list2",
+                                         "list3"))
+
 
 
 (temp.dir<- tempdir())
