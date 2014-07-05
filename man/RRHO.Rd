@@ -52,12 +52,16 @@
 
 \details{
 	Following the method in the reference, the function computes the number of overlapping elements in the first \eqn{i*stepsize} and \eqn{j*stepsize} elements of each list, and return the observed significance of this overlap using a hypergeometric test (see \code{\link{fisher.test}}).
-	The output is returned as a list of matrices including: the overlap in the first \eqn{i*stepsize,j*stepsize} elements and the significance of this overlap. Optional outputs include plots of these matrices in .jpg format.}
+	The output is returned as a list of matrices including: the overlap in the first \eqn{i*stepsize,j*stepsize} elements and the significance of this overlap. 
+  
+  If \code{plots=TRUE} then plots of these matrices are stored in .jpg format. 
+  In the case of \code{alternative='two.sided'} the pvalue plots are signed, just like in [1], thus distinguishing between over and under enrichment.}
 
 \value{
 \item{hypermat}{Matrix of \eqn{-log(pvals)} of the test for the first \eqn{i,j} elements of the lists.}
 \item{hypermat.counts}{Counts of the number of agreements in the first \eqn{i,j} elements of the lists.}
 \item{hypermat.by}{An optional output of the B-Y corrected p-values of \code{hypermat} }
+\item{hypermat.signs}{Matrix of the type of deviation from the null. Negative for underenrichment and positive for overenrichment.}
 }
 
 \section{Notes}{

@@ -14,6 +14,9 @@ max(exp(-.test$log.pval))
 table(is.na(.test$log.pval))
 
 
+
+
+
 list.length <- 100
 list.names <- paste('Gene',1:list.length, sep='')
 gene.list1<- data.frame(list.names, sample(list.length))
@@ -22,7 +25,11 @@ RRHO.example <-  RRHO(gene.list1, gene.list2, alternative='two.sided', BY = TRUE
 library(lattice)
 library(grid)
 levelplot(RRHO.example$hypermat)
+exp(-min(RRHO.example$hypermat))
+exp(-max(RRHO.example$hypermat))
 levelplot(RRHO.example$hypermat.by)
+levelplot(RRHO.example$hypermat * RRHO.example$hypermat.signs)
+
 RRHO.example <-  RRHO(alternative = 'enrichment',
        gene.list1,  gene.list2, 
        plots=TRUE, outputdir='/tmp/', labels=c("a","b"))
@@ -118,3 +125,6 @@ table(is.na(RRHO.comp$Pdiff.by))
 
 (temp.dir<- tempdir())
 RRHOComparison(HNP ,My,  Sestan, stepsize, plots=TRUE, labels = labelssss, outputdir = temp.dir);
+
+
+

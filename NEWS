@@ -1,5 +1,6 @@
 Version 1.5.0:
 () Major documentation cleanup.
-() Added two sided hypotheses to RRHO().
+() Added two sided hypotheses to RRHO() with signed pvalue plotting.
 () Added comparison of three lists using RRHOCOmparison().
 () Added an option for log10 pvalues in RRHO.
+() Added error handling to RRHO so that failed plotting does not crash the computation.
