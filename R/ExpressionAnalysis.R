@@ -182,12 +182,15 @@ RRHO <- function(list1, list2,
     image(hypermat.signed, xlab='', ylab='', col=jet.colors(100), 
           axes=FALSE, main="Rank Rank Hypergeometric Overlap Map")
     
+        
     mtext(labels[2],2,0.5)
     mtext(labels[1],1,0.5)
     ##mtext(paste("-log(BY P-value) =",max(hypermat.by)),3,0.5,cex=0.5)
+    
+    finite.ind<- is.finite(hypermat.signed)
     color.bar(jet.colors(100),
-              min=min(hypermat.signed, na.rm=TRUE),
-              max=max(hypermat.signed, na.rm=TRUE),
+              min=min(hypermat.signed[finite.ind], na.rm=TRUE),
+              max=max(hypermat.signed[finite.ind], na.rm=TRUE),
               nticks=6,
               title="-log(P-value)")
     

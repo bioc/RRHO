@@ -1,4 +1,5 @@
-Version 1.5.0:
+Version 1.6.0  (currently 1.5.xx)
+---------------------------
 () Major documentation cleanup.
 () Added two sided hypotheses to RRHO() with signed pvalue plotting.
 () Added comparison of three lists using RRHOCOmparison().
