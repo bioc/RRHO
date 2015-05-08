@@ -5,7 +5,19 @@ sample2<- sample(n)
 # The rank overlap of two independent samples should be about the mean for both one and two sided tests.
 .test<- RRHO:::numericListOverlap(sample1, sample2, stepsize=10, alternative="two.sided")
 dim(.test$log.pval)
-library(lattice)
+levelplot(.test$counts)
+levelplot(-.test$log.pval)
+levelplot(exp(-.test$log.pval))
+.test$log.pval
+max(exp(-.test$log.pval))
+table(is.na(.test$log.pval))
+
+
+# Dependent case:
+# The rank overlap of two independent samples should be about the mean for both one and two sided tests.
+n<- 112
+sample1<- sample(n)
+.test<- RRHO:::numericListOverlap(sample1, sample1, stepsize=10, alternative="two.sided",tol=0.5)
 levelplot(.test$counts)
 levelplot(-.test$log.pval)
 levelplot(exp(-.test$log.pval))
@@ -22,8 +34,6 @@ list.names <- paste('Gene',1:list.length, sep='')
 gene.list1<- data.frame(list.names, sample(list.length))
 gene.list2<- data.frame(list.names, sample(list.length))
 RRHO.example <-  RRHO(gene.list1, gene.list2, alternative='two.sided', BY = TRUE)
-library(lattice)
-library(grid)
 levelplot(RRHO.example$hypermat)
 exp(-min(RRHO.example$hypermat))
 exp(-max(RRHO.example$hypermat))

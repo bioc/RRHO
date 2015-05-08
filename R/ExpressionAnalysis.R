@@ -16,7 +16,7 @@ defaultStepSize <-function(list1, list2){
 
 
 ## Compute the overlaps between two *numeric* lists:
-numericListOverlap<- function(sample1, sample2, stepsize, alternative){
+numericListOverlap<- function(sample1, sample2, stepsize, alternative, tol=0.5){
   n<- length(sample1)
   
   overlap<- function(a,b) {
@@ -39,8 +39,8 @@ numericListOverlap<- function(sample1, sample2, stepsize, alternative){
              }
              
              log.pval<- -log(
-               phyper(q=lower, m=a, n=n-a+1, k=b, lower.tail=TRUE) +
-                 phyper(q= upper, m=a, n=n-a+1, k=b, lower.tail=FALSE))                               
+               phyper(q=lower+tol, m=a, n=n-a+1, k=b, lower.tail=TRUE) +
+                 phyper(q= upper-tol, m=a, n=n-a+1, k=b, lower.tail=FALSE))                               
            })
     
     return(c(counts=count, 
