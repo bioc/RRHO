@@ -1,7 +1,7 @@
 Package: RRHO
 Type: Package
 Title: Inference on agreement between ordered lists
-Version: 1.9.1
+Version: 1.10.0
 Date: 2014-06-26
 Author: Jonathan Rosenblatt and Jason Stein 
 Maintainer: Jonathan Rosenblatt <john.ros.work@gmail.com>
